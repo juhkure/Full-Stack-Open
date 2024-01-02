@@ -2,6 +2,7 @@ import { useState, useEffect, location } from 'react'
 import axios from 'axios'
 import Person from './components/Person'
 import personService from "./services/persons"
+import './index.css'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -9,6 +10,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [showAll, setShowAll] = useState(false)
   const [newFilter, setNewFilter] = useState('')
+  const [confirmationMessage, setConfirmationMessage] = useState(null)
 
   useEffect(() => {
     personService
@@ -16,7 +18,7 @@ const App = () => {
       .then(initialPersons => {
         setPersons(initialPersons)
       })
-  }, [])
+  }, [newName, persons])
 
   const deletePerson = (id, name) => {
     let exists = false
@@ -30,12 +32,19 @@ const App = () => {
               const newPersons = persons.filter((person) => person.id !== id)
               setPersons(newPersons)
             })
+            .then(setConfirmationMessage(
+              `Number of "${name}" has successfully been removed!`
+            ))
+          setTimeout(() => {
+            setConfirmationMessage(null)
+          }, 5000)
         }
       }
     }))
   }
 
   const addPerson = (event) => {
+    event.preventDefault()
     const personObject = {
       name: newName,
       number: newNumber,
@@ -54,17 +63,48 @@ const App = () => {
         .then(returnedPerson => {
           console.log(returnedPerson)
         })
-      setPersons(persons.concat(personObject))
+        .then(setConfirmationMessage(
+          `${personObject.name} successfully added to the phonebook!`
+        ))
       setNewName('')
       setNewNumber('')
+      setPersons(persons.concat(personObject))
+      setTimeout(() => {
+        setConfirmationMessage(null)
+      }, 5000)
+
     } else {
       if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
 
         const changingPerson = persons.filter((person) => person.name === personObject.name)
         console.log(changingPerson[0].id)
+        const oldNumber = changingPerson[0].number
+        console.log(oldNumber)
         personService
-        .update(changingPerson[0].id, personObject)
-        .then((response) => console.log(response))
+          .update(changingPerson[0].id, personObject)
+          .then((response) => console.log(response))
+          .then(setConfirmationMessage(
+            `Number of "${personObject.name}" has successfully been changed!`
+          ))
+
+
+        console.log(persons)
+
+        const changedPersons = persons
+        const index = persons.findIndex((person => person.name == changingPerson[0].name))
+        console.log(index)
+
+        changedPersons[index].number = personObject.number
+        setPersons(changedPersons)
+
+        setNewName('')
+        setNewNumber('')
+
+        setTimeout(() => {
+          setConfirmationMessage(null)
+        }, 5000)
+
+
       }
     }
 
@@ -83,6 +123,20 @@ const App = () => {
     setNewFilter(event.target.value.toLowerCase())
   }
 
+  const Notification = ({ message }) => {
+    if (message === null) {
+      return null
+    }
+
+
+    return (
+      <div className='confirmation'>
+        {message}
+      </div>
+    )
+  }
+
+
   const personsToShow = showAll
     ? persons
     : persons.filter(person => person.name.toLowerCase().includes(newFilter))
@@ -93,6 +147,7 @@ const App = () => {
       <Filter filterValue={newFilter} filterOnChange={handleFilterChange} />
 
       <h2>Add a new</h2>
+      <Notification message={confirmationMessage} />
       <PersonForm
         onSubmit={addPerson}
         nameValue={newName}
