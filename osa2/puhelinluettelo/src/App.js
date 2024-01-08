@@ -11,6 +11,7 @@ const App = () => {
   const [showAll, setShowAll] = useState(false)
   const [newFilter, setNewFilter] = useState('')
   const [confirmationMessage, setConfirmationMessage] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
 
   useEffect(() => {
     personService
@@ -32,11 +33,19 @@ const App = () => {
               const newPersons = persons.filter((person) => person.id !== id)
               setPersons(newPersons)
             })
-            .then(setConfirmationMessage(
-              `Number of "${name}" has successfully been removed!`
-            ))
+            .then(() => {
+              setConfirmationMessage(
+                `Number of "${name}" has successfully been removed!`
+              )
+            })
+            .catch(error => {
+              setErrorMessage(
+                `Information of ${name} was already removed from server`
+              )
+            })
           setTimeout(() => {
             setConfirmationMessage(null)
+            setErrorMessage(null)
           }, 5000)
         }
       }
@@ -83,9 +92,16 @@ const App = () => {
         personService
           .update(changingPerson[0].id, personObject)
           .then((response) => console.log(response))
-          .then(setConfirmationMessage(
-            `Number of "${personObject.name}" has successfully been changed!`
-          ))
+          .then(() => {
+            setConfirmationMessage(
+              `Number of "${personObject.name}" has successfully been changed!`
+            )
+          })
+          .catch(error => {
+            setErrorMessage(
+              `Information of ${personObject.name} has already been removed from server`
+            )
+          })
 
 
         console.log(persons)
@@ -102,6 +118,7 @@ const App = () => {
 
         setTimeout(() => {
           setConfirmationMessage(null)
+          setErrorMessage(null)
         }, 5000)
 
 
@@ -128,9 +145,20 @@ const App = () => {
       return null
     }
 
-
     return (
       <div className='confirmation'>
+        {message}
+      </div>
+    )
+  }
+
+  const Error = ({ message }) => {
+    if (message === null) {
+      return null
+    }
+
+    return (
+      <div className='error'>
         {message}
       </div>
     )
@@ -148,6 +176,7 @@ const App = () => {
 
       <h2>Add a new</h2>
       <Notification message={confirmationMessage} />
+      <Error message={errorMessage} />
       <PersonForm
         onSubmit={addPerson}
         nameValue={newName}
