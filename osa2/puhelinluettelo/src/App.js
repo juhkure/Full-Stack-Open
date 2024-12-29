@@ -19,7 +19,7 @@ const App = () => {
       .then(initialPersons => {
         setPersons(initialPersons)
       })
-  }, [newName, persons])
+  }, [])
 
   const deletePerson = (id, name) => {
     let exists = false
