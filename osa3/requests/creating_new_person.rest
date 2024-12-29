@@ -4,4 +4,15 @@ Content-Type: application/json
 {
     "name":"Testaaja",
     "number":"987653321"
+},
+
+###
+
+POST https://phonebook-q17h.onrender.com/api/persons
+Content-Type: application/json
+
+{
+    "name":"Testaaja",
+    "number":"987653321"
 }
+
