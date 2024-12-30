@@ -86,6 +86,30 @@ test('adding a blog without likes sets it to 0', async () => {
     assert.strictEqual(addedBlog.likes, 0)
 })
 
+test('adding a blog without title is rejected', async () => {
+    const newBlog = {
+        author: "asdkaosdk",
+        url: "okoaksdok"
+    }
+
+    await api.post('/api/blogs').send(newBlog).expect(400)
+
+    const endAmount = await Blog.find({})
+    assert.strictEqual(endAmount.length, helper.initialBlogs.length)
+})
+
+test('adding a blog without url is rejected', async () => {
+    const newBlog = {
+        author: "asdkddk",
+        title: "kodkoko"
+    }
+
+    await api.post('/api/blogs').send(newBlog).expect(400)
+
+    const endAmount = await Blog.find({})
+    assert.strictEqual(endAmount.length, helper.initialBlogs.length)
+})
+
 /* describe('adding a blog', () => {
     test('without author is not added', async () => {
         const newBlog = {
