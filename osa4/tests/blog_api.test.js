@@ -110,6 +110,20 @@ test('adding a blog without url is rejected', async () => {
     assert.strictEqual(endAmount.length, helper.initialBlogs.length)
 })
 
+test('delete a blog', async () => {
+    const deleteableBlog = helper.initialBlogs[0]
+
+    await api.delete(`/api/blogs/${deleteableBlog._id}`).expect(204)
+
+    const blogsAfter = await Blog.find({})
+    blogsAfter.map(blog => blog.toJSON())
+
+    const titles = blogsAfter.map(b => b.title)
+
+    assert.ok(!titles.includes(deleteableBlog.title))
+
+})
+
 /* describe('adding a blog', () => {
     test('without author is not added', async () => {
         const newBlog = {
