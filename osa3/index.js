@@ -60,38 +60,50 @@ app.get('/api/persons', (request, response) => {
     })
 })
 
-/* Person.find({}).then(result => {
-    console.log('phonebook:')
-    result.forEach(person => {
-        console.log(person.name + ' ' + person.number)
-    })
-    mongoose.connection.close()
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body
+
+    const person = {
+        name: body.name,
+        number: body.number
+    }
+
+    Person.findByIdAndUpdate(request.params.id, person, { new: true })
+        .then((updatedPerson) => {
+            if (!updatedPerson) {
+                return response.status(404).end()
+            }
+            response.json(updatedPerson)
+        }).catch((error) => {
+            next(error)
+        })
+
 })
- */
 
 app.get('/info', (request, response) => {
     const date = new Date()
-    const personAmount = persons.length
 
     console.log(date)
-    response.send(
-        `<p>Phonebook has info for ${personAmount} people
+
+    Person.find({}).then((persons) => {
+        response.send(
+            `<p>Phonebook has info for ${persons.length} people
         <br/><b/>
         ${date}
         </p>
         `
-    )
+        )
+    })
 })
 
-app.get('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    const person = persons.find(person => person.id === id)
-
-    if (person) {
-        response.json(person)
-    } else {
-        response.status(404).end()
-    }
+app.get('/api/persons/:id', (request, response, next) => {
+    Person.findById(request.params.id).then((person) => {
+        if (person) {
+            response.json(person)
+        } else {
+            response.status(404).end()
+        }
+    }).catch((error) => next(error))
 })
 
 const generateId = () => {
@@ -106,7 +118,7 @@ const generateRandId = () => {
     return String(Id)
 }
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     const body = request.body
 
     if (!body.name) {
@@ -129,15 +141,18 @@ app.post('/api/persons', (request, response) => {
 
     person.save().then((savedPerson) => {
         response.json(savedPerson)
+    }).catch((error) => {
+        next(error)
     })
 
 })
 
-app.delete('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    persons = persons.filter(person => person.id !== id)
-
-    response.status(204).end()
+app.delete('/api/persons/:id', (request, response, next) => {
+    Person.findByIdAndDelete(request.params.id)
+        .then(() => {
+            response.status(204).end()
+        })
+        .catch((error) => next(error))
 })
 
 
