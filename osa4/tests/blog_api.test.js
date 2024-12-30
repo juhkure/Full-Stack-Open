@@ -71,6 +71,21 @@ test('adding a blog with HTTP POST call', async () => {
 
 })
 
+test('adding a blog without likes sets it to 0', async () => {
+    const newBlog = {
+        title: "testtitle",
+        author: "testauthor",
+        url: "testurl"
+    }
+
+    await api.post('/api/blogs').send(newBlog).expect(200).expect('Content-Type', /application\/json/)
+
+    const response = await api.get('/api/blogs')
+    const addedBlog = response.body.find(blog => blog.title === newBlog.title)
+
+    assert.strictEqual(addedBlog.likes, 0)
+})
+
 /* describe('adding a blog', () => {
     test('without author is not added', async () => {
         const newBlog = {
