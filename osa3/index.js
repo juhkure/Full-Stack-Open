@@ -3,7 +3,6 @@ const express = require('express')
 const app = express()
 const morgan = require('morgan')
 const cors = require('cors')
-const mongoose = require('mongoose')
 const Person = require('./models/person')
 
 
@@ -63,7 +62,6 @@ app.get('/api/persons', (request, response) => {
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
-    const { name, number } = request.body
     const body = request.body
 
     const person = {
@@ -110,13 +108,6 @@ app.get('/api/persons/:id', (request, response, next) => {
         }
     }).catch((error) => next(error))
 })
-
-const generateId = () => {
-    const maxId = persons.length > 0
-        ? Math.max(...persons.map(n => Number(n.id)))
-        : 0
-    return String(maxId + 1)
-}
 
 const generateRandId = () => {
     const Id = Math.floor(1000 * Math.random()) + 1

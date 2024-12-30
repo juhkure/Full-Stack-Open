@@ -25,14 +25,14 @@ const person = new Person({
     number: process.argv[4]
 })
 
-if (process.argv.length == 5) {
+if (process.argv.length === 5) {
     person.save().then(result => {
         console.log('added ' + person.name + ' number ' + person.number + ' to phonebook')
         mongoose.connection.close()
     })
 }
 
-if (process.argv.length == 3) {
+if (process.argv.length === 3) {
     Person.find({}).then(result => {
         console.log('phonebook:')
         result.forEach(person => {
