@@ -6,6 +6,7 @@ const { test, after, beforeEach, describe } = require('node:test')
 const Blog = require('../models/blog')
 const helper = require('../tests/test_helper')
 const assert = require('node:assert')
+const { getSystemErrorMap } = require('node:util')
 
 
 
@@ -111,17 +112,34 @@ test('adding a blog without url is rejected', async () => {
 })
 
 test('delete a blog', async () => {
-    const deleteableBlog = helper.initialBlogs[0]
+    const startingBlogs = await helper.blogsInDb()
+    const deleteableBlog = startingBlogs[0]
 
-    await api.delete(`/api/blogs/${deleteableBlog._id}`).expect(204)
+    await api.delete(`/api/blogs/${deleteableBlog.id}`).expect(204)
 
     const blogsAfter = await Blog.find({})
-    blogsAfter.map(blog => blog.toJSON())
+    const blogsAfter2 = blogsAfter.map(blog => blog.toJSON())
 
-    const titles = blogsAfter.map(b => b.title)
+    const titles = blogsAfter2.map(b => b.title)
 
     assert.ok(!titles.includes(deleteableBlog.title))
 
+})
+
+test('update a blog', async () => {
+    const startingBlogs = await helper.blogsInDb()
+    const modifiableBlog = startingBlogs[0]
+
+    modifiableBlog.likes++
+
+    await api.put(`/api/blogs/${modifiableBlog.id}`).send(modifiableBlog).expect(200)
+
+    const blogsAfter = await helper.blogsInDb()
+    const finalBlog = blogsAfter.find((blog) => blog.id === modifiableBlog.id)
+    console.log(finalBlog)
+    console.log(modifiableBlog)
+
+    assert.deepStrictEqual(finalBlog, modifiableBlog)
 })
 
 /* describe('adding a blog', () => {
