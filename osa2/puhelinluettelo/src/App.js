@@ -2,7 +2,9 @@ import { useState, useEffect, location } from 'react'
 import axios from 'axios'
 import Person from './components/Person'
 import personService from "./services/persons"
+import Footer from './components/Footer'
 import './index.css'
+import './App.css'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -71,16 +73,17 @@ const App = () => {
         .create(personObject)
         .then(returnedPerson => {
           console.log(returnedPerson)
+          setNewName('')
+          setNewNumber('')
+          setPersons(persons.concat(personObject))
+          setConfirmationMessage(`${personObject.name} successfully added to the phonebook!`)
+          setTimeout(() => {
+            setConfirmationMessage(null)
+          }, 5000)
         })
-        .then(setConfirmationMessage(
-          `${personObject.name} successfully added to the phonebook!`
-        ))
-      setNewName('')
-      setNewNumber('')
-      setPersons(persons.concat(personObject))
-      setTimeout(() => {
-        setConfirmationMessage(null)
-      }, 5000)
+        .catch(error => {
+          setErrorMessage(`[error] ${error.response.data.error}`)
+        })
 
     } else {
       if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
@@ -107,7 +110,7 @@ const App = () => {
         console.log(persons)
 
         const changedPersons = persons
-        const index = persons.findIndex((person => person.name == changingPerson[0].name))
+        const index = persons.findIndex((person => person.name === changingPerson[0].name))
         console.log(index)
 
         changedPersons[index].number = personObject.number
@@ -171,7 +174,7 @@ const App = () => {
 
   return (
     <div>
-      <h2>Phonebook</h2>
+      <h1>Phonebook</h1>
       <Filter filterValue={newFilter} filterOnChange={handleFilterChange} />
 
       <h2>Add a new</h2>
@@ -186,6 +189,7 @@ const App = () => {
 
       <h2>Numbers</h2>
       <Persons personsToShow={personsToShow} deletePerson={deletePerson} />
+      <Footer />
     </div>
   )
 
