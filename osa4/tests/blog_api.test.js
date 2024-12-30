@@ -30,7 +30,7 @@ test('blogs are returned as json', async () => {
         .expect('Content-Type', /application\/json/)
 })
 
-test('there are six blogposts', async () => {
+test('there are correct amount of blogs', async () => {
     const response = await api.get('/api/blogs')
 
     assert.strictEqual(response.body.length, helper.initialBlogs.length)
@@ -64,7 +64,7 @@ test('adding a blog with HTTP POST call', async () => {
         __v: 0
     }
 
-    await api.post('/api/blogs').send(newBlog).expect(200).expect('Content-Type', /application\/json/)
+    await api.post('/api/blogs').send(newBlog).expect(201).expect('Content-Type', /application\/json/)
 
     const endAmount = await Blog.find({})
     assert.strictEqual(endAmount.length, startingAmount.length + 1)
@@ -78,7 +78,7 @@ test('adding a blog without likes sets it to 0', async () => {
         url: "testurl"
     }
 
-    await api.post('/api/blogs').send(newBlog).expect(200).expect('Content-Type', /application\/json/)
+    await api.post('/api/blogs').send(newBlog).expect(201).expect('Content-Type', /application\/json/)
 
     const response = await api.get('/api/blogs')
     const addedBlog = response.body.find(blog => blog.title === newBlog.title)
